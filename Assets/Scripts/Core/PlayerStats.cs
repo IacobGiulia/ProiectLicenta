@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using TMPro;
 using UnityEngine.UIElements;
@@ -6,8 +6,8 @@ using UnityEngine.UIElements;
 public class PlayerStats : MonoBehaviour
 {
     [Header("Stats")]
-    public float energy = 100f;     
-    public float stamina = 0f;      
+    public float energy = 100f;
+    public float stamina = 0f;
     public float strength = 0f;
 
     [Header("Rest Settings")]
@@ -17,9 +17,9 @@ public class PlayerStats : MonoBehaviour
     public bool isResting => restTimer > 0f;
 
     [Header("UI Panels")]
-    public GameObject energyPanel;   
-    public GameObject staminaPanel;  
-    public GameObject strengthPanel; 
+    public GameObject energyPanel;
+    public GameObject staminaPanel;
+    public GameObject strengthPanel;
     public GameObject dayPanel;
 
     [Header("References")]
@@ -42,8 +42,8 @@ public class PlayerStats : MonoBehaviour
     public float maxProgress = 100f;
 
     [Header("Day Summary UI")]
-    public CanvasGroup screenFade;               
-    public GameObject daySummaryPanel;           
+    public CanvasGroup screenFade;
+    public GameObject daySummaryPanel;
     public TMPro.TextMeshProUGUI daySummaryText;
 
     public UnityEngine.UI.Slider staminaSlider;
@@ -71,12 +71,14 @@ public class PlayerStats : MonoBehaviour
     private bool gameFinished = false;
     private bool finalDayReached = false;
 
+    private UnityEngine.UI.Button continueButton;
+    private bool continuePressed = false;
+
     void Start()
     {
         if (PlayerPrefs.GetInt("LoadGame", 0) == 1)
         {
             LoadGame();
-
             PlayerPrefs.DeleteKey("LoadGame");
         }
 
@@ -86,6 +88,18 @@ public class PlayerStats : MonoBehaviour
 
         if (endGamePanel != null)
             endGamePanel.SetActive(false);
+
+        if (daySummaryPanel != null)
+        {
+            continueButton = daySummaryPanel.GetComponentInChildren<UnityEngine.UI.Button>();
+            if (continueButton != null)
+                continueButton.onClick.AddListener(OnContinuePressed);
+        }
+    }
+
+    void OnContinuePressed()
+    {
+        continuePressed = true;
     }
 
     void Update()
@@ -93,14 +107,9 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
         CheckEnergy();
         UpdateRestTimer();
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            SaveGame();
-        }
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            LoadGame();
-        }
+
+        if (Input.GetKeyDown(KeyCode.K)) SaveGame();
+        if (Input.GetKeyDown(KeyCode.L)) LoadGame();
     }
 
     void UpdateUI()
@@ -121,11 +130,10 @@ public class PlayerStats : MonoBehaviour
 
     void UpdateRestTimer()
     {
-        if(restTimer > 0f)
+        if (restTimer > 0f)
         {
             restTimer -= Time.deltaTime;
-
-            if(restTimer < 0f)
+            if (restTimer < 0f)
                 restTimer = 0f;
         }
     }
@@ -134,13 +142,12 @@ public class PlayerStats : MonoBehaviour
     {
         if (duration <= 0f)
             duration = restDuration;
-
         restTimer = duration;
     }
+
     IEnumerator EndDayRoutine()
     {
-        dayEnded = true;
-        float fadeDuration = 1.5f;
+        float fadeDuration = 3.5f;
         float elapsed = 0f;
         screenFade.alpha = 0f;
         screenFade.gameObject.SetActive(true);
@@ -156,7 +163,6 @@ public class PlayerStats : MonoBehaviour
             screenFade.alpha = Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
-
         screenFade.alpha = 1f;
 
         float staminaPercent = stamina;
@@ -164,10 +170,8 @@ public class PlayerStats : MonoBehaviour
         float progressPercent = Mathf.Floor((staminaPercent + strengthPercent) / 2f);
 
         float accuracy = 0f;
-        if(totalExercises > 0)
-        {
-            accuracy = Mathf.Floor((correctExercises * 100) /  totalExercises);
-        }
+        if (totalExercises > 0)
+            accuracy = Mathf.Floor((correctExercises * 100) / totalExercises);
 
         string focusMessage;
         if (stamina > strength)
@@ -178,21 +182,16 @@ public class PlayerStats : MonoBehaviour
             focusMessage = "Perfectly balanced workout. You've got true athlete energy!";
 
         string rating;
-        if (accuracy < 30)
-            rating = "Poor day";
-        else if (accuracy < 60)
-            rating = "Good day";
-        else if (accuracy < 85)
-            rating = "Great day";
-        else
-            rating = "Perfect day";
+        if (accuracy < 30) rating = "Poor day";
+        else if (accuracy < 60) rating = "Good day";
+        else if (accuracy < 85) rating = "Great day";
+        else rating = "Perfect day";
 
         daySummaryPanel.SetActive(true);
         daySummaryText.text = $"Day {day} Complete!";
 
         float animationTime = 1.5f;
         elapsed = 0f;
-
         while (elapsed < animationTime)
         {
             elapsed += Time.deltaTime;
@@ -211,13 +210,10 @@ public class PlayerStats : MonoBehaviour
         }
 
         float finalProgress = Mathf.Floor((stamina + strength) / 2f);
-
         staminaSlider.value = staminaPercent;
         staminaText.text = $"{Mathf.Floor(stamina)}%";
-
         strengthSlider.value = strengthPercent;
         strengthSliderText.text = $"{Mathf.Floor(strength)}%";
-
         progressSlider.value = finalProgress;
         progressTextSummary.text = $"{finalProgress}%";
 
@@ -227,12 +223,7 @@ public class PlayerStats : MonoBehaviour
         focusMessageText.text = focusMessage;
         ratingText.text = rating;
 
-        bool continuePressed = false;
-        daySummaryPanel.GetComponentInChildren<UnityEngine.UI.Button>().onClick.AddListener(() =>
-        {
-            continuePressed = true;
-        });
-
+        continuePressed = false;
         while (!continuePressed)
             yield return null;
 
@@ -245,8 +236,6 @@ public class PlayerStats : MonoBehaviour
         }
         screenFade.alpha = 0f;
         screenFade.gameObject.SetActive(false);
-
-
         daySummaryPanel.SetActive(false);
 
         if (finalDayReached)
@@ -260,8 +249,8 @@ public class PlayerStats : MonoBehaviour
 
     public void StartNewDay()
     {
-        day++;               
-        energy = 100f;        
+        day++;
+        energy = 100f;
         dayEnded = false;
         totalExercises = 0;
         correctExercises = 0;
@@ -283,9 +272,8 @@ public class PlayerStats : MonoBehaviour
     public void WorkOut(float energyCost, float staminaGain, float strengthGain, float progressGain, bool wasCorrect)
     {
         totalExercises++;
+        if (wasCorrect) correctExercises++;
 
-        if (wasCorrect)
-            correctExercises++;
         energy -= energyCost;
         energy = Mathf.Clamp(energy, 0, 100);
 
@@ -298,49 +286,32 @@ public class PlayerStats : MonoBehaviour
         AddProgress(progressGain);
 
         if (stamina >= 100 && strength >= 100)
-        {
             finalDayReached = true;
-        }
-
-        Debug.Log($"After: Energy={energy}, Stamina={stamina}, Strength={strength}");
 
         if (energyBar != null) energyBar.SetValue(energy);
         if (staminaBar != null) staminaBar.SetValue(stamina);
         if (strengthBar != null) strengthBar.SetValue(strength);
 
-        if (energy <= 0 && !dayEnded)
-        {
-            StartCoroutine(EndDayRoutine()); 
-        }
     }
+
     public void AddProgress(float amount)
     {
         progress += amount;
         progress = Mathf.Clamp(progress, 0f, maxProgress);
-
     }
 
     public string GetRank()
     {
-        if (day <= 25)
-            return "Legendary Athlete";
-
-        if (day <= 40)
-            return "Elite Athlete";
-
-        if (day <= 60)
-            return "Professional";
-
-        if (day <= 85)
-            return "Dedicated Trainee";
-
+        if (day <= 25) return "Legendary Athlete";
+        if (day <= 40) return "Elite Athlete";
+        if (day <= 60) return "Professional";
+        if (day <= 85) return "Dedicated Trainee";
         return "Amateur";
     }
 
     void FinishGame()
     {
         gameFinished = true;
-
         if (endGamePanel != null)
             endGamePanel.SetActive(true);
 
@@ -359,11 +330,9 @@ public class PlayerStats : MonoBehaviour
     public void LoadGame()
     {
         SaveData data = SaveSystem.LoadGame();
-
         if (data != null)
         {
             day = data.day;
-
             energy = data.energy;
             stamina = data.stamina;
             strength = data.strength;
@@ -375,5 +344,4 @@ public class PlayerStats : MonoBehaviour
             UpdateDayText();
         }
     }
-
 }

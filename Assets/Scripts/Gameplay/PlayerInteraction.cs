@@ -20,7 +20,6 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            Debug.Log("E pressed!");
             Interactable interactable = GetClosestInteractable();
             if (interactable != null)
                 interactable.Interact();

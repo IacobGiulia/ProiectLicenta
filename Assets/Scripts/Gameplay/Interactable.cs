@@ -15,7 +15,7 @@ public enum InteractionType
 public class Interactable : MonoBehaviour
 {
     [Header("Equipment Lock (NPC Queue)")]
-    [Tooltip("Componenta Equipment de pe același aparat. NPC-ii vor aștepta la coadă când jucătorul e aici.")]
+    [Tooltip("Equipment component attached. NPCs will queue up when the player is using it.")]
     public Equipment equipment;
 
     [Header("Rest System")]
@@ -86,19 +86,20 @@ public class Interactable : MonoBehaviour
 
     IEnumerator ReleaseAfterAnimation(string stateName)
     {
-        // Două frame-uri delay ca Animator să proceseze trigger-ul
         yield return null;
         yield return null;
 
-        // Așteaptă să intre în starea respectivă
         while (!playerAnimator.GetCurrentAnimatorStateInfo(0).IsName(stateName))
             yield return null;
 
-        // Așteaptă să termine starea
         while (playerAnimator.GetCurrentAnimatorStateInfo(0).IsName(stateName))
             yield return null;
-
-        if (playerController != null) playerController.canMove = true;
+        playerAnimator.applyRootMotion = true;
+        if (playerController != null)
+        { 
+            playerController.ResetMovement();
+            playerController.canMove = true;
+        }    
 
         UnlockForPlayer();
     }
@@ -116,7 +117,7 @@ public class Interactable : MonoBehaviour
 
         if (playerStats != null && playerStats.isResting)
         {
-            Debug.Log("Player is currently resting or is busy");
+            Debug.Log("Player is currently resting");
             if(restMessageUI != null)
                 restMessageUI.ShowMessage(playerStats.restTimer);
             return;
@@ -157,47 +158,6 @@ public class Interactable : MonoBehaviour
         }
     }
 
-    private void ApplyStatsEffects()
-    {
-        if (playerStats == null)
-            return;
-
-        float energyCost = 0f;
-        float staminaGain = 0f;
-        float strengthGain = 0f;
-
-        switch (interactionType)
-        {
-            case InteractionType.BicepCurl:
-            case InteractionType.FrontRaises:
-                energyCost = 5f;
-                strengthGain = 1f;
-                break;
-
-            case InteractionType.BenchPress:
-                energyCost = 10f;
-                strengthGain = 5f;
-                break;
-
-            case InteractionType.BarbellSquat:
-                energyCost = 10f;
-                strengthGain = 5f;
-                break;
-
-            case InteractionType.PushUp:
-            case InteractionType.SitUp:
-                energyCost = 5f;
-                staminaGain = 1f;
-                break;
-
-            case InteractionType.TreadmillRun:
-                energyCost = 8f;
-                staminaGain = 3f;
-                break;
-        }
-
-    }
-
     private void BenchPress()
     {
         LockForPlayer();
@@ -216,8 +176,7 @@ public class Interactable : MonoBehaviour
 
         if (playerBarbellScript != null)
         {
-            Debug.Log("Showing barbell...");
-            Debug.Log($"Interactable {name} BenchPress called, benchBarbell = {(benchBarbell != null ? benchBarbell.name : "NULL")}");
+            
             playerBarbellScript.ShowBarbell(benchBarbell);
         }
 
@@ -290,7 +249,6 @@ public class Interactable : MonoBehaviour
         if (squatCollider != null)
             squatCollider.enabled = true;
 
-        //playerController.canMove = true;
     }
 
     private void PushUp()
@@ -361,27 +319,23 @@ public class Interactable : MonoBehaviour
         playerAnimator.SetTrigger("RunOnTreadmill");
 
         if (treadmillSystem != null)
+        {
+            treadmillSystem.onRunFinished = () => StopTreadmill();
             treadmillSystem.StartRun();
+        }
+            
 
     }
 
     private void StopTreadmill()
     {
-        //UnlockForPlayer();
         isOnTreadmill = false;
 
-        if (playerController != null)
-        {
-            playerController.canMove = true;
-            playerController.ResetMovement();
-        }
-
-        playerAnimator.applyRootMotion = true;
         playerAnimator.ResetTrigger("RunOnTreadmill");
 
         if (treadmillSystem != null)
             treadmillSystem.StopRun();
-        UnlockForPlayer();
+        StartCoroutine(ReleaseAfterAnimation("TreadmillRun"));
 
     }
 
@@ -417,8 +371,6 @@ public class Interactable : MonoBehaviour
             playerStats.WorkOut(energyCost, 0f, strengthGain, 1f, wasCorrect);
         }
 
-        //if (playerController != null)
-        //    playerController.canMove = true;
         if (playerStats != null)
             playerStats.StartRest();
 
@@ -455,8 +407,6 @@ public class Interactable : MonoBehaviour
             Debug.Log("QTE FAILED — only energy lost.");
         }
 
-        //if (playerController != null)
-        //    playerController.canMove = true;
 
         if (playerStats != null)
             playerStats.StartRest();
@@ -469,7 +419,6 @@ public class Interactable : MonoBehaviour
         MashQTE mashQTE = FindObjectOfType<MashQTE>();
         if (mashQTE == null)
         {
-            Debug.LogWarning("MashQTE script not found in scene!");
             if (playerController != null) playerController.canMove = true;
             UnlockForPlayer();
             yield break;
@@ -493,9 +442,6 @@ public class Interactable : MonoBehaviour
             Debug.Log("Push Up QTE FAILED!");
             playerStats.WorkOut(5f, 0f, 0f, 0f, false); 
         }
-
-        //if (playerController != null)
-        //    playerController.canMove = true;
 
         if (playerStats != null)
             playerStats.StartRest();

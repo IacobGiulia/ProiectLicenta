@@ -9,6 +9,11 @@ public class TimingQTE : MonoBehaviour
     public RectTransform successZone;
     public GameObject qtePanel;
 
+    [Header("Audio")]
+    public AudioSource qteAudioSource;
+    public AudioClip successSound;
+    public AudioClip failSound;
+
     [Header("Base Settings")]
     public float baseMoveSpeed = 300f;
     public float maxMoveSpeed = 700f;
@@ -96,10 +101,14 @@ public class TimingQTE : MonoBehaviour
                 if (hit)
                 {
                     successfulHits++;
+                    if (qteAudioSource != null && successSound != null)
+                        qteAudioSource.PlayOneShot(successSound);
                     Debug.Log($"GOOD HIT ({successfulHits}/{requiredHits})");
                 }
                 else
                 {
+                    if (qteAudioSource != null && failSound != null)
+                        qteAudioSource.PlayOneShot(failSound);
                     Debug.Log("MISS");
                 }
 

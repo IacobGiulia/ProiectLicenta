@@ -7,7 +7,8 @@ public class ButtonSound : MonoBehaviour
 
     public void PlayClickSound()
     {
-         audioSource.PlayOneShot(clickSound);
-        
+        Debug.Log("Button clicked");
+
+        audioSource.PlayOneShot(clickSound);
     }
 }

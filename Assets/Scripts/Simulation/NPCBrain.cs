@@ -3,29 +3,29 @@ using UnityEngine;
 
 public class NPCBrain : MonoBehaviour
 {
-    [Header("Miscare")]
+    [Header("Movement")]
     public float moveSpeed = 3f;
     public float rotationSpeed = 5f;
     public float nodeReachThreshold = 0.3f;
     public float interactionReachThreshold = 0.1f;
 
-    [Header("Coada")]
-    [Tooltip("Distanta dintre NPC-uri la coada (metri).")]
-    public float queueSpacing = 1.2f;
+    [Header("Queue")]
+    [Tooltip("Distance between NPCs in a queue")]
+    public float queueSpacing = 2f;
 
     [Header("AI Personality")]
     public NPCPersonality personality;
 
-    [Tooltip("Dupa cate secunde un NPC blocat in WaitingInQueue se reseteaza singur.")]
+    [Tooltip("Queue Timeout")]
     public float queueTimeout = 15f;
 
-    [Header("Animatie")]
+    [Header("Animation")]
     public Animator animator;
 
-    [Tooltip("Bara din mâna dreaptă a NPC-ului (child al RightHand), pentru bench press.")]
+    [Tooltip("Barbell in the NPC's right hand for bench press.")]
     public GameObject benchBar;
 
-    [Tooltip("Bara de pe spatele NPC-ului (child al Spine2), pentru squat.")]
+    [Tooltip("Barbell on the NPC's back for squat.")]
     public GameObject squatBar;
 
     private InteractionPoint targetPoint;
@@ -121,7 +121,6 @@ public class NPCBrain : MonoBehaviour
         _waitingInQueueTimer += Time.deltaTime;
         if (_waitingInQueueTimer >= queueTimeout)
         {
-            Debug.LogWarning($"[NPCBrain:{gameObject.name}] Timeout in WaitingInQueue dupa {queueTimeout}s. Resetez.");
             _waitingInQueueTimer = 0f;
             ClearTarget();
             state = NPCState.MovingToGateway;
@@ -203,7 +202,6 @@ public class NPCBrain : MonoBehaviour
     {
         if (targetPoint != null)
         {
-            Debug.LogWarning($"[NPCBrain:{gameObject.name}] AssignNextTarget cu targetPoint activ. Curăț.");
             ClearTarget();
         }
 
@@ -314,7 +312,6 @@ public class NPCBrain : MonoBehaviour
 
         if (targetPoint.equipment != null && !targetPoint.equipment.IsOwnedBy(this))
         {
-            Debug.LogError($"[NPCBrain:{gameObject.name}] MovingToInteraction fără ownership! Resetez.");
             targetPoint = null;
             state = NPCState.MovingToGateway;
             return;
@@ -462,7 +459,6 @@ public class NPCBrain : MonoBehaviour
     {
         if (state != NPCState.WaitingInQueue)
         {
-            Debug.LogWarning($"[NPCBrain:{gameObject.name}] NotifyEquipmentAvailable ignorat (stare={state}). Eliberez ownership.");
             if (targetPoint != null && targetPoint.equipment != null && targetPoint.equipment.IsOwnedBy(this))
                 targetPoint.Release(this);
             return;
@@ -470,7 +466,6 @@ public class NPCBrain : MonoBehaviour
 
         if (targetPoint == null)
         {
-            Debug.LogWarning($"[NPCBrain:{gameObject.name}] NotifyEquipmentAvailable dar targetPoint e null.");
             state = NPCState.MovingToGateway;
             return;
         }

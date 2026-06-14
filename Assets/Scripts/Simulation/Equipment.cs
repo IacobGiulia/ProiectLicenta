@@ -41,7 +41,7 @@ public class Equipment : MonoBehaviour
         {
             if (_owner == npc)
             {
-                Debug.LogError($"[Equipment:{gameObject.name}] DOUBLE ACQUIRE de același NPC: {npc.name}!");
+            
                 return true;
             }
 
@@ -59,7 +59,6 @@ public class Equipment : MonoBehaviour
     {
         if (_owner != npc)
         {
-            Debug.LogWarning($"[Equipment:{gameObject.name}] Release invalid de la {npc.name}, owner e {(_owner != null ? _owner.name : "NULL")}.");
             return;
         }
 

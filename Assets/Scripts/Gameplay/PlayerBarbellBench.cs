@@ -87,7 +87,6 @@ public class PlayerBarbellBench : MonoBehaviour
     {
         if (benchBarbellToHide == null)
         {
-            Debug.LogError("ShowBarbell called with NULL bench barbell!");
             return;
         }
 
@@ -111,7 +110,6 @@ public class PlayerBarbellBench : MonoBehaviour
         if (currentBenchBarbell != null)
         {
             SetRenderers(currentBenchBarbell, true);
-            Debug.Log($"Bench barbell restored: {currentBenchBarbell.name}");
             currentBenchBarbell.SetActive(true);
             currentBenchBarbell = null;
         }

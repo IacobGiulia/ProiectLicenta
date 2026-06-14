@@ -14,6 +14,11 @@ public class MashQTE : MonoBehaviour
     public float baseDecayRate = 0.02f;
     public float maxDecayRate = 0.05f;
 
+    [Header("Audio")]
+    public AudioSource qteAudioSource;
+    public AudioClip successSound;
+    public AudioClip failSound;
+
     [Header("UI References")]
     public Slider progressBar;
     public TextMeshProUGUI timerText;
@@ -36,6 +41,8 @@ public class MashQTE : MonoBehaviour
 
     public void StartQTE()
     {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         Debug.Log("TIME LIMIT = " + timeLimit);
         ApplyDifficulty();  
 
@@ -98,7 +105,10 @@ public class MashQTE : MonoBehaviour
         active = false;
         WasSuccessful = true;
 
-        Debug.Log("Mash QTE REUȘIT!");
+        if (qteAudioSource != null && successSound != null)
+            qteAudioSource.PlayOneShot(successSound);
+
+        Debug.Log("Mash QTE Success!");
 
         if (mashPanel != null)
             mashPanel.SetActive(false);
@@ -114,7 +124,10 @@ public class MashQTE : MonoBehaviour
         active = false;
         WasSuccessful = false;
 
-        Debug.Log("Mash QTE EȘUAT");
+        if (qteAudioSource != null && failSound != null)
+            qteAudioSource.PlayOneShot(failSound);
+
+        Debug.Log("Mash QTE Failed");
 
         if (mashPanel != null)
             mashPanel.SetActive(false);

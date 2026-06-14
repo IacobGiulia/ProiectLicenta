@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerDumbbells : MonoBehaviour
 {
-    [Header("Ganterele jucãtorului")]
+    [Header("Player's dumbbells")]
     public GameObject dumbbell_R;
     public GameObject dumbbell_L;
     public Animator animator;

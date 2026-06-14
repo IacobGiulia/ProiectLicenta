@@ -8,11 +8,8 @@ public class MainMenu : MonoBehaviour
     public GameObject creditsPanel;
     public void OpenHowToPlay()
     {
-        Debug.Log("OPEN");
 
         howToPlayPanel.SetActive(true);
-
-        Debug.Log("ACTIVE STATE: " + howToPlayPanel.activeSelf);
     }
 
     public void CloseHowToPlay()

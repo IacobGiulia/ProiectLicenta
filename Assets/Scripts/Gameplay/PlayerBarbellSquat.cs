@@ -72,7 +72,6 @@ public class PlayerBarbellSquat : MonoBehaviour
     {
         if (rackBarbellToHide == null)
         {
-            Debug.LogError("ShowBarbell called with NULL squat barbell!");
             return;
         }
 

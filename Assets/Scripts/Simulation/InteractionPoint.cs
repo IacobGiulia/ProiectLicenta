@@ -2,10 +2,10 @@
 
 public class InteractionPoint : MonoBehaviour
 {
-    [Header("Referinte")]
+    [Header("Reference")]
     public Equipment equipment;
 
-    [Tooltip("Nodul din graf de unde NPC-ul pleacă spre acest interaction point și unde se întoarce după workout.")]
+    [Tooltip("Graph node used by the NPC to reach this interaction point and return after the workout.")]
     public Node gatewayNode;
 
     [Header("Workout")]
@@ -13,15 +13,15 @@ public class InteractionPoint : MonoBehaviour
     public float workoutDuration = 5f;
     public Transform workTarget;
 
-    [Header("Bara")]
+    [Header("Bar")]
     public GameObject rackBar;
 
     public enum BarType { None, BenchBar, SquatBar }
 
-    [Tooltip("Ce tip de bară trebuie activată pe NPC pentru acest exercițiu.")]
+    [Tooltip("Bar type required")]
     public BarType requiredBar = BarType.None;
 
-    [Tooltip("Delay în secunde înainte să apară bara pe NPC.")]
+    [Tooltip("Delay before the bar appears on the NPC.")]
     public float barDelay = 0f;
 
     public enum ExerciseType
@@ -53,7 +53,6 @@ public class InteractionPoint : MonoBehaviour
     {
         if (equipment == null)
         {
-            Debug.LogError($"[InteractionPoint:{gameObject.name}] equipment e NULL! NPC {npc.name} trece fără lock.");
             return true;
         }
 

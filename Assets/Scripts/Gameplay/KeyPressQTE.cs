@@ -14,7 +14,12 @@ public class KeyPressQTE : MonoBehaviour
     public float baseTimePerKey = 2.5f;
     public float minTimePerKey = 1.0f;
 
-    public int totalKeys = 4;
+    public int totalKeys = 8;
+
+    [Header("Audio")]
+    public AudioSource qteAudioSource;
+    public AudioClip successSound;
+    public AudioClip failSound;
 
     private readonly KeyCode[] possibleKeys =
     {
@@ -89,11 +94,15 @@ public class KeyPressQTE : MonoBehaviour
 
                         if (k == currentKey)
                         {
-                            Debug.Log($"CORECT {keysCompleted + 1}/{totalKeys}");
+                            if (qteAudioSource != null && successSound != null)
+                                qteAudioSource.PlayOneShot(successSound);
+                            Debug.Log($"CORRECT {keysCompleted + 1}/{totalKeys}");
                         }
                         else
                         {
-                            Debug.Log($"GRESIT: {k} vs {currentKey}");
+                            if (qteAudioSource != null && failSound != null)
+                                qteAudioSource.PlayOneShot(failSound);
+                            Debug.Log($"WRONG: {k} vs {currentKey}");
                             WasPerfect = false;
                         }
 
@@ -116,6 +125,8 @@ public class KeyPressQTE : MonoBehaviour
 
             if (!answered)
             {
+                if (qteAudioSource != null && failSound != null)
+                    qteAudioSource.PlayOneShot(failSound);
                 Debug.Log($"TIME OUT: {currentKey}");
                 WasPerfect = false;
 
@@ -146,7 +157,7 @@ public class KeyPressQTE : MonoBehaviour
 
     public void FinishQTE()
     {
-        Debug.Log("Key QTE TERMINAT!");
+        Debug.Log("Key QTE Finished!");
 
         if (qtePanel != null)
             qtePanel.SetActive(false);

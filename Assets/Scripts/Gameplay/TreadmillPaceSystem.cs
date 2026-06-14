@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TreadmillPaceSystem : MonoBehaviour
 {
@@ -12,7 +12,7 @@ public class TreadmillPaceSystem : MonoBehaviour
     public float minAccelOnPress = 1.2f;
 
     public float baseDecay = 1.5f;
-    public float maxDecay = 3f;
+    public float maxDecay = 2f;
 
     [Header("Ideal Zone")]
     public float baseIdealMin = 4f;
@@ -28,6 +28,10 @@ public class TreadmillPaceSystem : MonoBehaviour
     public PlayerStats playerStats;
     public float energyCost = 10f;
     public float staminaReward = 1f;
+
+    public AudioSource qteAudioSource;
+    public AudioClip successSound;
+    public AudioClip failSound;
 
     [Header("UI")]
     public TreadmillUI treadmillUI;
@@ -51,8 +55,12 @@ public class TreadmillPaceSystem : MonoBehaviour
     public float IdealMin => idealMin;
     public float IdealMax => idealMax;
 
+    public System.Action onRunFinished;
+
     public void StartRun()
     {
+        Cursor.lockState = CursorLockMode.None; 
+        Cursor.visible = true;
         ApplyDifficulty();  
 
         isRunning = true;
@@ -153,6 +161,14 @@ public class TreadmillPaceSystem : MonoBehaviour
 
         runSuccess = inIdealZone;
 
+        if (qteAudioSource != null)
+        {
+            if (runSuccess && successSound != null)
+                qteAudioSource.PlayOneShot(successSound);
+            else if (!runSuccess && failSound != null)
+                qteAudioSource.PlayOneShot(failSound);
+        }
+
         if (DifficultyManager.Instance != null)
             DifficultyManager.Instance.RegisterMinigameResult(runSuccess);
 
@@ -160,23 +176,24 @@ public class TreadmillPaceSystem : MonoBehaviour
 
         if (treadmillUI != null)
             treadmillUI.Hide();
+
+        onRunFinished?.Invoke();
     }
 
     void ApplyFinalStats()
     {
         if (playerStats == null) return;
 
-        playerStats.energy -= energyCost;
-        playerStats.energy =
-            Mathf.Clamp(playerStats.energy, 0, 100);
+        float staminaGain = runSuccess ? staminaReward : 0f;
 
-        if (runSuccess)
-        {
-            playerStats.stamina += staminaReward;
-            playerStats.stamina =
-                Mathf.Clamp(playerStats.stamina, 0, 100);
-        }
+        playerStats.WorkOut(
+            energyCost,   
+            staminaGain,  
+            0f,           
+            1f,          
+            runSuccess    
+        );
 
-        Debug.Log(runSuccess ? "GOOD RUN!" : "BAD RUN!");
+        playerStats.StartRest();
     }
 }
