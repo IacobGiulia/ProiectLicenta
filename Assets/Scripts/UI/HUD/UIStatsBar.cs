@@ -34,7 +34,7 @@ public class UIStatsBar : MonoBehaviour
             if (valueText != null)
             {
                 float percent = (slider.value / slider.maxValue) * 100f;
-                valueText.text = percent.ToString("0") + "%";
+                valueText.text = slider.value.ToString("0.#") + "%";
             }
         }
     }

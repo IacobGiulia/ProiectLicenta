@@ -23,11 +23,24 @@ public class InteractionManager : MonoBehaviour
         {
             if (p == exclude) continue;
 
+            if (npc.ShouldAvoid(p)) continue;
+
             float score = CalculateScore(npc, p);
             if (score > bestScore)
             {
                 bestScore = score;
                 best = p;
+            }
+        }
+
+        if (best == null)
+        {
+            bestScore = float.MinValue;
+            foreach (var p in points)
+            {
+                if (p == exclude) continue;
+                float score = CalculateScore(npc, p);
+                if (score > bestScore) { bestScore = score; best = p; }
             }
         }
         npc.lastTarget = best;
@@ -48,9 +61,9 @@ public class InteractionManager : MonoBehaviour
                     case InteractionPoint.ExerciseType.Squat: personalityScore += 10f; break;
                     case InteractionPoint.ExerciseType.BicepCurls: personalityScore += 3f; break;
                     case InteractionPoint.ExerciseType.FrontRaises: personalityScore += 3f; break;
-                    case InteractionPoint.ExerciseType.PushUps: personalityScore -= 2f; break;
-                    case InteractionPoint.ExerciseType.Treadmill: personalityScore   -= 8f; break;
-                    case InteractionPoint.ExerciseType.SitUps: personalityScore -= 2f; break;
+                    case InteractionPoint.ExerciseType.PushUps: personalityScore += 1f; break;
+                    case InteractionPoint.ExerciseType.Treadmill: personalityScore   -= 10f; break;
+                    case InteractionPoint.ExerciseType.SitUps: personalityScore -= 6f; break;
                 }
                 break;
 
@@ -59,11 +72,11 @@ public class InteractionManager : MonoBehaviour
                 {
                     case InteractionPoint.ExerciseType.Treadmill: personalityScore += 10f; break;
                     case InteractionPoint.ExerciseType.SitUps: personalityScore += 4f; break;
-                    case InteractionPoint.ExerciseType.PushUps: personalityScore += 3f; break;
-                    case InteractionPoint.ExerciseType.BenchPress:  personalityScore -= 4f; break;
-                    case InteractionPoint.ExerciseType.Squat: personalityScore -= 2f; break;
-                    case InteractionPoint.ExerciseType.BicepCurls: personalityScore -= 3f; break;
-                    case InteractionPoint.ExerciseType.FrontRaises: personalityScore -= 1f; break;
+                    case InteractionPoint.ExerciseType.PushUps: personalityScore += 1f; break;
+                    case InteractionPoint.ExerciseType.BenchPress:  personalityScore -= 7f; break;
+                    case InteractionPoint.ExerciseType.Squat: personalityScore -= 8f; break;
+                    case InteractionPoint.ExerciseType.BicepCurls: personalityScore -= 4f; break;
+                    case InteractionPoint.ExerciseType.FrontRaises: personalityScore -= 3f; break;
                 }
                 break;
 
@@ -75,36 +88,21 @@ public class InteractionManager : MonoBehaviour
                     case InteractionPoint.ExerciseType.BenchPress: personalityScore += 2f; break;
                     case InteractionPoint.ExerciseType.Squat: personalityScore += 2f; break;
                     case InteractionPoint.ExerciseType.Treadmill: personalityScore -= 10f; break;
-                    case InteractionPoint.ExerciseType.BicepCurls: personalityScore -= 1f; break;
-                    case InteractionPoint.ExerciseType.FrontRaises: personalityScore -= 1f; break;
+                    case InteractionPoint.ExerciseType.BicepCurls: personalityScore -= 3f; break;
+                    case InteractionPoint.ExerciseType.FrontRaises: personalityScore -= 4f; break;
                 }
                 break;
 
             case NPCBrain.NPCPersonality.Lazy:
-                personalityScore += 0f;
-
                 if (p.equipment != null && !p.IsOccupied)
                     personalityScore += 6f;
-
                 if (p.equipment != null)
                     personalityScore -= p.equipment.QueueCount * 4f;
                 break;
 
             case NPCBrain.NPCPersonality.Balanced:
 
-                personalityScore += 2f; 
-
-                personalityScore += p.exerciseType switch
-                {
-                    InteractionPoint.ExerciseType.BenchPress => 3f,
-                    InteractionPoint.ExerciseType.Squat => 3f,
-                    InteractionPoint.ExerciseType.BicepCurls => 2f,
-                    InteractionPoint.ExerciseType.FrontRaises => 2f,
-                    InteractionPoint.ExerciseType.PushUps => 2f,
-                    InteractionPoint.ExerciseType.SitUps => 2f,
-                    InteractionPoint.ExerciseType.Treadmill => 3f,
-                    _ => 0f
-                };
+                personalityScore += 2f;
                 break;
         }
 
@@ -119,9 +117,13 @@ public class InteractionManager : MonoBehaviour
 
         score += personalityScore;
 
-        if (p == npc.lastTarget)
+        if (npc.personality != NPCBrain.NPCPersonality.Balanced && p == npc.lastTarget)
             score += 6f;
-        score += Random.Range(-0.2f, 0.2f);
+
+        float noise = npc.personality == NPCBrain.NPCPersonality.Balanced
+            ? Random.Range(-3f, 3f)
+            : Random.Range(-0.2f, 0.2f);
+        score += noise;
 
         return score;
     }

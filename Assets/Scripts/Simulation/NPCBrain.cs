@@ -31,6 +31,17 @@ public class NPCBrain : MonoBehaviour
     private InteractionPoint targetPoint;
     private InteractionPoint lastUsedPoint;
     public InteractionPoint lastTarget;
+
+    [HideInInspector] public List<InteractionPoint> recentlyUsed = new List<InteractionPoint>();
+    [Tooltip("Number of equipment to be avoided by Balanced")]
+    public int balancedMemorySize = 15;
+
+    [Tooltip("Number of equipment to be avoided by Bodybuilder")]
+    public int bodybuilderMemorySize = 6;
+
+    [Tooltip("Number of equipment to be avoided by Lazy")]
+    public int lazyMemorySize = 12;
+
     private List<Node> path;
     private int currentNodeIndex;
     private float workoutTimer;
@@ -69,12 +80,18 @@ public class NPCBrain : MonoBehaviour
 
     private NPCState state = NPCState.MovingAlongPath;
 
+    private static int _nextPersonalityIndex = 0;
+    private static readonly object _personalityLock = new object();
+
     void Start()
     {
-        personality = (NPCPersonality)Random.Range(
-    0,
-    System.Enum.GetValues(typeof(NPCPersonality)).Length
-        );
+        lock (_personalityLock)
+        {
+            var values = (NPCPersonality[])System.Enum.GetValues(typeof(NPCPersonality));
+            personality = values[_nextPersonalityIndex % values.Length];
+            _nextPersonalityIndex++;
+        }
+
         allNodes = Object.FindObjectsOfType<Node>();
         if (benchBar != null) benchBar.SetActive(false);
         if (squatBar != null) squatBar.SetActive(false);
@@ -108,6 +125,38 @@ public class NPCBrain : MonoBehaviour
 
         if (targetPoint == null && state != NPCState.MovingToGateway)
             AssignNextTarget();
+    }
+
+    public bool ShouldAvoid(InteractionPoint p)
+    {
+        switch(personality)
+        {
+            case NPCPersonality.Bodybuilder:
+                return recentlyUsed.Contains(p);    
+
+            case NPCPersonality.Balanced:
+                    return recentlyUsed.Contains(p);
+
+            case NPCPersonality.Lazy   :
+                return recentlyUsed.Contains(p);
+            default:
+                return false;
+        }
+    }
+
+    void AddToMemory(InteractionPoint p)
+    {
+        int memSize = personality == NPCPersonality.Balanced
+            ? balancedMemorySize
+            : bodybuilderMemorySize;
+
+        if (memSize <= 0) return;
+
+        if (!recentlyUsed.Contains(p))
+            recentlyUsed.Add(p);
+
+        while (recentlyUsed.Count > memSize)
+            recentlyUsed.RemoveAt(0);
     }
 
     public void UpdateQueuePosition(int newPosition)
@@ -449,8 +498,11 @@ public class NPCBrain : MonoBehaviour
         }
 
         lastUsedPoint = targetPoint;
-        targetPoint.Release(this);
         lastTarget = targetPoint;
+
+        AddToMemory(targetPoint);
+
+        targetPoint.Release(this);
         targetPoint = null;
         state = NPCState.MovingToGateway;
     }

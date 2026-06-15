@@ -78,6 +78,21 @@ public class Interactable : MonoBehaviour
             equipment.PlayerAcquire();
     }
 
+    bool CanPerform(float cost)
+    {
+        if (playerStats == null)
+            return false;
+
+        if (playerStats.energy < cost)
+        {
+            if (restMessageUI != null)
+                restMessageUI.ShowMessage("Not enough energy!");
+            return false;
+        }
+
+        return true;
+    }
+
     void UnlockForPlayer()
     {
         if (equipment != null)
@@ -126,7 +141,7 @@ public class Interactable : MonoBehaviour
         switch (interactionType)
         {
             case InteractionType.BicepCurl:
-                StartCoroutine(DoKeyQTEAndApplyStats("DoBicepCurl","BicepCurl", 5f, 1f, 0f));
+                StartCoroutine(DoKeyQTEAndApplyStats("DoBicepCurl","BicepCurl", 5f, 0.5f, 0f));
                 break;
 
             case InteractionType.TreadmillRun:
@@ -137,7 +152,7 @@ public class Interactable : MonoBehaviour
                 break;
 
             case InteractionType.FrontRaises:
-                StartCoroutine(DoKeyQTEAndApplyStats("DoFrontRaises", "FrontRaises", 5f, 1f, 0f));
+                StartCoroutine(DoKeyQTEAndApplyStats("DoFrontRaises", "FrontRaises", 5f, 0.5f, 0f));
                 break;
 
             case InteractionType.BenchPress:
@@ -160,6 +175,11 @@ public class Interactable : MonoBehaviour
 
     private void BenchPress()
     {
+        float energyCost = 10f;
+
+        if (!CanPerform(energyCost))
+            return;
+
         LockForPlayer();
 
         if (playerController != null)
@@ -211,6 +231,12 @@ public class Interactable : MonoBehaviour
 
     private void BarbellSquat()
     {
+        float energyCost = 10f;
+
+        if (!CanPerform(energyCost))
+            return;
+
+
         LockForPlayer();
 
         if (playerController != null)
@@ -308,6 +334,12 @@ public class Interactable : MonoBehaviour
 
     private void StartTreadmill()
     {
+        float energyCost = 10f;
+
+        if (!CanPerform(energyCost))
+            return;
+
+
         LockForPlayer();
 
         isOnTreadmill = true;
@@ -435,7 +467,7 @@ public class Interactable : MonoBehaviour
         if (mashQTE.WasSuccessful)
         {
             Debug.Log("Push Up QTE SUCCESS!");
-            playerStats.WorkOut(5f, 1f, 0f, 1f, true); 
+            playerStats.WorkOut(5f, 0.5f, 0f, 0.5f, true); 
         }
         else
         {

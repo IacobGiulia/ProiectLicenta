@@ -163,15 +163,17 @@ public class PlayerStats : MonoBehaviour
             screenFade.alpha = Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
+
         screenFade.alpha = 1f;
 
         float staminaPercent = stamina;
         float strengthPercent = strength;
-        float progressPercent = Mathf.Floor((staminaPercent + strengthPercent) / 2f);
+        float progressPercent = (staminaPercent + strengthPercent) / 2f;
+
 
         float accuracy = 0f;
         if (totalExercises > 0)
-            accuracy = Mathf.Floor((correctExercises * 100) / totalExercises);
+            accuracy = (correctExercises * 100f) / totalExercises;
 
         string focusMessage;
         if (stamina > strength)
@@ -192,34 +194,39 @@ public class PlayerStats : MonoBehaviour
 
         float animationTime = 1.5f;
         elapsed = 0f;
+
         while (elapsed < animationTime)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / animationTime);
 
             staminaSlider.value = Mathf.Lerp(0f, staminaPercent, t);
-            staminaText.text = $"{Mathf.Floor(staminaSlider.value)}%";
+            staminaText.text = $"{staminaSlider.value:0.#}%";
 
             strengthSlider.value = Mathf.Lerp(0f, strengthPercent, t);
-            strengthSliderText.text = $"{Mathf.Floor(strengthSlider.value)}%";
+            strengthSliderText.text = $"{strengthSlider.value:0.#}%";
 
             progressSlider.value = Mathf.Lerp(0f, progressPercent, t);
-            progressTextSummary.text = $"{Mathf.Floor(progressSlider.value)}%";
+            progressTextSummary.text = $"{progressPercent:0.#}%";
 
             yield return null;
         }
 
-        float finalProgress = Mathf.Floor((stamina + strength) / 2f);
+        float finalProgress = (stamina + strength) / 2f;
+
         staminaSlider.value = staminaPercent;
-        staminaText.text = $"{Mathf.Floor(stamina)}%";
+        staminaText.text = $"{staminaPercent:0.#}%";
+
         strengthSlider.value = strengthPercent;
-        strengthSliderText.text = $"{Mathf.Floor(strength)}%";
+        strengthSliderText.text = $"{strengthPercent:0.#}%";
+
         progressSlider.value = finalProgress;
-        progressTextSummary.text = $"{finalProgress}%";
+        progressTextSummary.text = $"{finalProgress:0.#}%";
 
         totalExercisesText.text = totalExercises.ToString();
         correctExercisesText.text = correctExercises.ToString();
-        accuracyText.text = accuracy + "%";
+        accuracyText.text = $"{accuracy:0.#}%";
+
         focusMessageText.text = focusMessage;
         ratingText.text = rating;
 
@@ -228,12 +235,14 @@ public class PlayerStats : MonoBehaviour
             yield return null;
 
         elapsed = 0f;
+
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
             screenFade.alpha = 1f - Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
+
         screenFade.alpha = 0f;
         screenFade.gameObject.SetActive(false);
         daySummaryPanel.SetActive(false);
