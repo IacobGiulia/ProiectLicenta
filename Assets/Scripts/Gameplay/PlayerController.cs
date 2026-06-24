@@ -79,12 +79,6 @@ public class PlayerController : MonoBehaviour
         return Physics.CheckSphere(transform.TransformPoint(checkSphereOffset), checkSphereRadius, groundLayer);
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
-        Gizmos.DrawSphere(transform.TransformPoint(checkSphereOffset), checkSphereRadius);
-    }
-
     public void ResetMovement()
     {
         movement = Vector3.zero;

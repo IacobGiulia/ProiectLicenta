@@ -26,6 +26,7 @@ public static class SaveSystem
 
         Debug.Log("Game Saved!");
         Debug.Log(path);
+        Debug.Log(Application.persistentDataPath);
     }
 
     public static SaveData LoadGame()

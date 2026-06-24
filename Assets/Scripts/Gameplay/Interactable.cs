@@ -99,6 +99,14 @@ public class Interactable : MonoBehaviour
             equipment.PlayerRelease();
     }
 
+    void FreezePlayerForExercise()
+    {
+        if(playerController != null)
+        {
+            playerController.ResetMovement();
+            playerController.canMove = false;
+        }
+    }
     IEnumerator ReleaseAfterAnimation(string stateName)
     {
         yield return null;
@@ -122,6 +130,9 @@ public class Interactable : MonoBehaviour
     public void Interact()
     {
         if (playerAnimator == null) return;
+
+        if (playerController != null && !playerController.canMove)
+            return;
 
         if (equipment != null && equipment.Owner != null)
         {
@@ -182,8 +193,7 @@ public class Interactable : MonoBehaviour
 
         LockForPlayer();
 
-        if (playerController != null)
-            playerController.canMove = false;
+        FreezePlayerForExercise();
 
         playerAnimator.applyRootMotion = true;
  
@@ -220,6 +230,7 @@ public class Interactable : MonoBehaviour
 
 
         playerAnimator.SetTrigger("DoBenchPress");
+        Debug.Log(playerAnimator.GetCurrentAnimatorStateInfo(0).IsName("Bench Press"));
         playerAnimator.SetBool("QTEFinished", true);
         activeQTE = FindObjectOfType<TimingQTE>();
         if (activeQTE != null)
@@ -239,8 +250,7 @@ public class Interactable : MonoBehaviour
 
         LockForPlayer();
 
-        if (playerController != null)
-            playerController.canMove = false;
+        FreezePlayerForExercise();
 
         playerAnimator.applyRootMotion = true;
 
@@ -266,6 +276,7 @@ public class Interactable : MonoBehaviour
         }
 
         playerAnimator.SetTrigger("DoBarbellSquat");
+        
         playerAnimator.SetBool("QTEFinished", true);
 
         activeQTE = FindObjectOfType<TimingQTE>();
@@ -281,8 +292,7 @@ public class Interactable : MonoBehaviour
     {
         LockForPlayer();
 
-        if (playerController != null)
-            playerController.canMove = false;
+        FreezePlayerForExercise();
 
         playerAnimator.applyRootMotion = true;
 
@@ -308,8 +318,7 @@ public class Interactable : MonoBehaviour
     {
         LockForPlayer();
 
-        if (playerController != null)
-            playerController.canMove = false;
+        FreezePlayerForExercise();
 
         playerAnimator.applyRootMotion = true;
 
@@ -341,11 +350,8 @@ public class Interactable : MonoBehaviour
 
 
         LockForPlayer();
-
+        FreezePlayerForExercise();
         isOnTreadmill = true;
-
-        if (playerController != null)
-            playerController.canMove = false;
 
         playerAnimator.applyRootMotion = false;
         playerAnimator.SetTrigger("RunOnTreadmill");
@@ -413,8 +419,7 @@ public class Interactable : MonoBehaviour
     private IEnumerator DoKeyQTEAndApplyStats(string animationTrigger, string animStateName, float energyCost, float strengthGain, float staminaGain)
     {
         LockForPlayer();
-        if (playerController != null)
-            playerController.canMove = false;
+        FreezePlayerForExercise();
 
         playerAnimator.SetTrigger(animationTrigger);
 

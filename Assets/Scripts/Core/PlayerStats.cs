@@ -263,6 +263,7 @@ public class PlayerStats : MonoBehaviour
         dayEnded = false;
         totalExercises = 0;
         correctExercises = 0;
+        restTimer = 0f;
 
         if (energyPanel != null) energyPanel.SetActive(true);
         if (staminaPanel != null) staminaPanel.SetActive(true);

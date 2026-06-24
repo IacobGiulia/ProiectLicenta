@@ -146,9 +146,24 @@ public class NPCBrain : MonoBehaviour
 
     void AddToMemory(InteractionPoint p)
     {
-        int memSize = personality == NPCPersonality.Balanced
-            ? balancedMemorySize
-            : bodybuilderMemorySize;
+        int memSize;
+        switch (personality)
+        {
+            case NPCPersonality.Balanced:
+                memSize = balancedMemorySize;
+                break;
+
+            case NPCPersonality.Lazy:
+                memSize = lazyMemorySize;
+                break;
+
+            case NPCPersonality.Bodybuilder:
+                memSize = bodybuilderMemorySize;
+                break;
+
+            default:
+                return; 
+        }
 
         if (memSize <= 0) return;
 

@@ -81,7 +81,7 @@ public class PlayerBarbellBench : MonoBehaviour
 
     #endregion
 
-    #region Public API (apelată din Interactable)
+    #region Public API 
 
     public void ShowBarbell(GameObject benchBarbellToHide)
     {
