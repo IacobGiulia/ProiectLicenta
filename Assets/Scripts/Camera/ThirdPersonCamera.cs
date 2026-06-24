@@ -36,8 +36,6 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private void Start()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
 
         xInvertedValue = invertX ? -1 : 1;
 

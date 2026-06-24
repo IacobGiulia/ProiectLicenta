@@ -74,6 +74,11 @@ public class PlayerStats : MonoBehaviour
     private UnityEngine.UI.Button continueButton;
     private bool continuePressed = false;
 
+    public bool IsBlockingPanelActive =>
+        (daySummaryPanel != null && daySummaryPanel.activeSelf) ||
+        (endGamePanel != null && endGamePanel.activeSelf) ||
+        (dayOverPanel != null && dayOverPanel.activeSelf);
+
     void Start()
     {
         if (PlayerPrefs.GetInt("LoadGame", 0) == 1)
